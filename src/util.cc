@@ -8,9 +8,13 @@ void MapNodeArray(Napi::Value value, function<void(Napi::Value)> callback) {
   if (!value.IsArray()) {
     return;
   }
+  auto env = value.Env();
   auto array = value.As<Napi::Array>();
   for (unsigned int i = 0; i < array.Length(); i++) {
     auto current = array.Get(i);
+    if (env.IsExceptionPending()) {
+      return;
+    }
     callback(current);
   }
 }

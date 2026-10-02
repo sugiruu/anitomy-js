@@ -39,8 +39,16 @@ const char *ParseAndValidate(const Napi::CallbackInfo &args, Napi::Value &input,
     options.Set(allowed_delimiters, env.Undefined());
   }
 
+  if (env.IsExceptionPending()) {
+    return NULL;
+  }
+
   if (options.Has(ignored_strings) && !options.Get(ignored_strings).IsArray()) {
     options.Set(ignored_strings, env.Undefined());
+  }
+
+  if (env.IsExceptionPending()) {
+    return NULL;
   }
 
   return NULL;

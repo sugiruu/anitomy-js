@@ -58,7 +58,7 @@ void FileParser::SetBoolOption(Napi::Value options, const char *key, bool &val) 
 
 void FileParser::SafeSetOption(Napi::Value options, const char *key,
                                function<void(Napi::Value)> callback) {
-  if (!options.IsObject()) {
+  if (this->_env.IsExceptionPending() || !options.IsObject()) {
     return;
   }
   auto object = options.ToObject();
@@ -67,6 +67,9 @@ void FileParser::SafeSetOption(Napi::Value options, const char *key,
     return;
   }
   auto value = object.Get(node_key);
+  if (this->_env.IsExceptionPending()) {
+    return;
+  }
   callback(value);
 }
 

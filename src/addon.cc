@@ -24,6 +24,14 @@ Napi::Value ParseAsync(const Napi::CallbackInfo &info) {
   }
 
   auto worker = new ParserWorker(env, input, options);
+
+  if (env.IsExceptionPending()) {
+    auto pending = env.GetAndClearPendingException();
+    auto deferred = Promise::Deferred::New(env);
+    deferred.Reject(pending.Value());
+    return deferred.Promise();
+  }
+
   worker->Queue();
 
   return worker->GetPromise();
@@ -43,6 +51,11 @@ Napi::Value ParseSync(const Napi::CallbackInfo &info) {
   }
 
   auto parser = new FileParser(env, input, options);
+
+  if (env.IsExceptionPending()) {
+    return env.Undefined();
+  }
+
   parser->Parse();
 
   return parser->Result();
